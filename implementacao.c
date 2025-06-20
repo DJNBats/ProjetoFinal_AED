@@ -1,3 +1,4 @@
+#include "fila.h"
 #include "interface.h"
 
 // Fun��o para criar um novo n� com destino 'dest'
