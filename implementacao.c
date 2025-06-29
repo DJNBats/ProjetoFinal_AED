@@ -16,7 +16,7 @@ Grafo *criarGrafo(int vertices)
     Grafo *grafo = (Grafo *)malloc(sizeof(Grafo)); // Aloca memoria para o grafo
     grafo->vertices = vertices;                    // Define o numero de vertices
 
-    grafo->listaAdj = (_list *)malloc(vertices * sizeof(_list)); // Aloca vetor de listas
+    grafo->listaAdj = (lista **)malloc(vertices * sizeof(lista*)); // Aloca vetor de listas
     for (int i = 0; i < vertices; i++)
         grafo->listaAdj[i] = NULL; // Inicializa cada lista como vazia
 
@@ -24,11 +24,19 @@ Grafo *criarGrafo(int vertices)
 }
 
 // Funcao que adiciona uma aresta de 'origem' para 'destino'
-void adicionarAresta(Grafo *grafo, int origem, int destino)
+void adicionarAresta(Grafo *grafo, int origem, int destino, int dirigido)
 {
     lista *no = novoNo(destino);        // Cria o no de destino
     no->next = grafo->listaAdj[origem]; // Insere no inicio da lista de origem
     grafo->listaAdj[origem] = no;       // Atualiza a cabec a da lista
+
+        // Se o grafo for não-direcionado, adiciona a aresta inversa
+    if (!dirigido)
+    {
+        lista *noInverso = novoNo(origem);
+        noInverso->next = grafo->listaAdj[destino];
+        grafo->listaAdj[destino] = noInverso;
+    }
 }
 /*Implementacao do Livro Estruturas de dados usando C pag. 741
 void BFS(Grafo *grafo, int vertice){
@@ -102,7 +110,7 @@ void BFS(Grafo *grafo, int inicio)
                lista *temp = grafo->listaAdj[v]; // Acessa a lista de adjacência do vértice
                while (temp)
                { // Percorre os vizinhos
-                   int adj = temp->next;
+                   int adj = temp->item;
                    if (!visitado[adj])
                    {                          // Se ainda não foi visitado
                        visitado[adj] = 1;     // Marca como visitado
@@ -113,18 +121,22 @@ void BFS(Grafo *grafo, int inicio)
                }
            }
 
-           printf("\\n\\nÁrvore Breadth First (BF):\\n");
-           printf("Vértice\\tPredecessor\\n");
+           printf("\n\nArvore Breadth First (BF):\n");
+           printf("Vertice\tPredecessor\n");
            for (int i = 0; i < grafo->vertices; i++)
            {
                if (i == inicio)
-                   printf("%d\\t(Raiz)\\n", i); // O vértice inicial é a raiz
+                   printf("%d\t(Raiz)\n", i); // O vértice inicial é a raiz
                else
-                   printf("%d\\t%d\\n", i, predecessor[i]); // Imprime o predecessor
+                   printf("%d\t%d\n", i, predecessor[i]); // Imprime o predecessor
            }
 
            free(visitado); // Liberta a memória dos vetores
            free(predecessor);
-           free(fila->primeiro->item);
-           free(fila);
-       }
+            // Liberta todos os nós da fila antes de libertar a estrutura
+            while (!FilaEmpty(fila)) {
+                FilaGet(fila); // remove e já libera a memória
+            }
+            free(fila);
+
+}
